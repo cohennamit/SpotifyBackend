@@ -3,11 +3,13 @@ const logger = require('../../services/logger.service')
 const utilService = require('../../services/util.service')
 const ObjectId = require('mongodb').ObjectId
 
-async function query() {
-    // const criteria = { ...filterBy }
+async function query(filterBy = {}) {
     try {
+        const criteria = {
+                'owner._id' : {$eq:filterBy.owner}
+        }
         const collection = await dbService.getCollection('station')
-        var stations = await collection.find({}).toArray()
+        var stations = await collection.find(criteria).toArray()
         console.log('stations', stations)
         return stations
     } catch (err) {
@@ -52,11 +54,9 @@ async function add(station) {
 async function update(station) {
     try {
         const collection = await dbService.getCollection('station')
-        // const { _id } = station
-        // delete station._id
-        const stationToUpdate = { ...station }
-        delete stationToUpdate._id
-        await collection.updateOne({ _id: ObjectId(station._id) }, { $set: stationToUpdate })
+        const { _id } = station
+        delete station._id
+        await collection.updateOne({ _id: ObjectId(_id) }, { $set: station })
         return station
     } catch (err) {
         logger.error(`cannot update station ${station._id}`, err)

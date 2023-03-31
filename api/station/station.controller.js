@@ -4,8 +4,11 @@ const logger = require('../../services/logger.service')
 
 async function getStations(req, res) {
   try {
-    logger.debug('Getting Stations')
-    const stations = await stationService.query()
+    const filterBy = {
+          owner: req.query.owner || null
+    }
+    logger.debug('Getting Stations',filterBy)
+    const stations = await stationService.query(filterBy)
     res.json(stations)
   } catch (err) {
     logger.error('Failed to get stations', err)
@@ -26,7 +29,7 @@ async function getStationById(req, res) {
 
 async function addStation(req, res) {
   const { loggedinUser } = req
-
+  console.log(loggedinUser)
   try {
     const station = req.body
     station.owner = loggedinUser
