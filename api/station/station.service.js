@@ -4,20 +4,28 @@ const utilService = require('../../services/util.service')
 const ObjectId = require('mongodb').ObjectId
 
 async function query(filterBy = {}) {
+    console.log('station.service back', filterBy)
     try {
-        const criteria = {
-                'owner._id' : {$eq:filterBy.owner}
-        }
+        const criteria = _buildCriteria(filterBy)
+        console.log(criteria)
         const collection = await dbService.getCollection('station')
         var stations = await collection.find(criteria).toArray()
-        console.log('stations', stations)
         return stations
     } catch (err) {
         logger.error('cannot find stations', err)
         throw err
     }
 }
-
+function _buildCriteria(filterBy){
+    const criteria =  {}
+    if(filterBy.owner){
+    criteria['owner._id'] = {$eq:filterBy.owner}  
+    }
+    if(filterBy.label){
+        criteria.label = {$in:[filterBy.label]}
+    }
+    return criteria
+}
 async function getById(stationId) {
     try {
         const collection = await dbService.getCollection('station')
@@ -43,14 +51,14 @@ async function remove(stationId) {
 async function add(station) {
     try {
         const collection = await dbService.getCollection('station')
-        await collection.insertOne(station)
-        return station
+        const { insertedId } = await collection.insertOne(station)
+        const savedStation = { _id: insertedId, ...station }
+        return savedStation
     } catch (err) {
         logger.error('cannot insert station', err)
         throw err
     }
-}
-
+ }
 async function update(station) {
     try {
         const collection = await dbService.getCollection('station')

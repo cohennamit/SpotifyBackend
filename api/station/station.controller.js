@@ -5,7 +5,8 @@ const logger = require('../../services/logger.service')
 async function getStations(req, res) {
   try {
     const filterBy = {
-          owner: req.query.owner || null
+          owner: req.query.owner || '',
+          label: req.query.label || '',
     }
     logger.debug('Getting Stations',filterBy)
     const stations = await stationService.query(filterBy)
@@ -29,7 +30,6 @@ async function getStationById(req, res) {
 
 async function addStation(req, res) {
   const { loggedinUser } = req
-  console.log(loggedinUser)
   try {
     const station = req.body
     station.owner = loggedinUser
@@ -43,7 +43,6 @@ async function addStation(req, res) {
 
 
 async function updateStation(req, res) {
-  console.log('req.body', req.body)
   try {
     const station = req.body
     const updatedStation = await stationService.update(station)
